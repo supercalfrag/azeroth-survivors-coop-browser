@@ -1,0 +1,8 @@
+dist/
+artifacts/
+*.log
+*.memory
+*.dmp
+.env
+.env.*
+.vs/
