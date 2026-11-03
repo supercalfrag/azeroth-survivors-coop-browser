@@ -14,10 +14,11 @@ sealed class WarcraftScrollSkin : NativeWindow, IDisposable {
  internal void Attach(IntPtr window){if(Handle==window)return;if(Handle!=IntPtr.Zero)ReleaseHandle();if(window!=IntPtr.Zero)AssignHandle(window);}
  protected override void WndProc(ref Message m){
   base.WndProc(ref m);
-  if(m.Msg==0x0f||m.Msg==0x85||m.Msg==0x200||m.Msg==0xa0||m.Msg==0x201||m.Msg==0x202||m.Msg==0x317||m.Msg==0x318){
+  if(m.Msg==0x0f||m.Msg==0x85||m.Msg==0x200||m.Msg==0xa0||m.Msg==0x201||m.Msg==0x202||m.Msg==0x317||m.Msg==0x318||m.Msg==0xe0||m.Msg==0xe2||m.Msg==0xe4||m.Msg==0xe6||m.Msg==0xe9||m.Msg==0x18||m.Msg==0x47){
    try{Paint(m.Msg==0x317||m.Msg==0x318?m.WParam:IntPtr.Zero);}catch{/* Keep native scrolling usable if a transient window is disappearing. */}
   }
  }
+ internal void PaintNow(){try{Paint(IntPtr.Zero);}catch{}}
  void Paint(IntPtr printDc){
   if(Handle==IntPtr.Zero)return;var info=new BarInfo{Size=Marshal.SizeOf(typeof(BarInfo)),State=new int[6]};Rect window;
   if(!GetScrollBarInfo(Handle,objectId,ref info)||!GetWindowRect(Handle,out window)||(info.State[0]&0x18000)!=0)return;
@@ -46,7 +47,8 @@ sealed class WarcraftGrid : DataGridView {
  internal WarcraftGrid(){ControlAdded+=delegate(object sender,ControlEventArgs e){Watch(e.Control as ScrollBar);};foreach(Control control in Controls)Watch(control as ScrollBar);}
  void Watch(ScrollBar bar){if(bar==null||skins.ContainsKey(bar))return;var skin=new WarcraftScrollSkin();skins.Add(bar,skin);bar.HandleCreated+=delegate{skin.Attach(bar.Handle);};bar.HandleDestroyed+=delegate{skin.Dispose();};if(bar.IsHandleCreated)skin.Attach(bar.Handle);}
  protected override void OnPaint(PaintEventArgs e){base.OnPaint(e);ScrollBar vertical=null,horizontal=null;foreach(var bar in skins.Keys)if(bar.Visible){if(bar is VScrollBar)vertical=bar;else if(bar is HScrollBar)horizontal=bar;}if(vertical!=null&&horizontal!=null){var corner=new Rectangle(vertical.Left,horizontal.Top,vertical.Width,horizontal.Height);using(var fill=new SolidBrush(Color.FromArgb(25,21,16)))e.Graphics.FillRectangle(fill,corner);}}
- protected override void OnScroll(ScrollEventArgs e){base.OnScroll(e);foreach(var bar in skins.Keys)bar.Invalidate();}
+ internal void RefreshScrollbarTheme(){foreach(var pair in skins)if(pair.Key.Visible&&pair.Key.IsHandleCreated){pair.Key.Invalidate();pair.Key.Update();pair.Value.PaintNow();}if(IsHandleCreated&&!IsDisposed)BeginInvoke((Action)(()=>{if(!IsDisposed)foreach(var pair in skins)if(pair.Key.Visible)pair.Value.PaintNow();}));}
+ protected override void OnScroll(ScrollEventArgs e){base.OnScroll(e);RefreshScrollbarTheme();}
  protected override void Dispose(bool disposing){if(disposing)foreach(var skin in skins.Values)skin.Dispose();base.Dispose(disposing);}
 }
 sealed class WarcraftComboBox : ComboBox {

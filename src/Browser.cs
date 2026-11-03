@@ -20,9 +20,9 @@ sealed class BrowserForm : Form {
     readonly CheckBox canJoin=new CheckBox(),noPassword=new CheckBox();
     readonly Label status=new Label(),details=new Label(),heroLabel=new Label(),versionLabel=new Label();readonly HeroUnlockReader heroReader=new HeroUnlockReader();HeroUnlockState heroState;readonly Button refresh=new WarcraftButton(),copy=new WarcraftButton(),join=new WarcraftButton();
     readonly ComboBox source=new WarcraftComboBox();string gameVersion,versionIdentity;DirectLobbyReader directReader;
-    readonly Timer timer=new Timer();List<Lobby> rooms=new List<Lobby>();LobbyReader reader;bool busy,joining,filtering,closeRequested,stale;
+    readonly Timer timer=new Timer();List<Lobby> rooms=new List<Lobby>();LobbyReader reader;bool busy,joining,filtering,closeRequested,stale;DateTime lastReadAt=DateTime.MinValue;string lastSource="Direct service";bool lastHeroChecked;
     internal BrowserForm(bool connectOnShow=true){
-        Text="Azeroth Co-op Browser v14";ClientSize=new Size(1410,780);MinimumSize=new Size(1020,650);StartPosition=FormStartPosition.CenterScreen;
+        Text="Azeroth Co-op Browser v15";ClientSize=new Size(1410,780);MinimumSize=new Size(1020,650);StartPosition=FormStartPosition.CenterScreen;
         Font=WarcraftFonts.Body();BackColor=Color.FromArgb(22,18,14);ForeColor=Color.FromArgb(225,211,173);
         var root=new WarcraftPanel{Dock=DockStyle.Fill,Padding=new Padding(25),ColumnCount=1,RowCount=7};
         root.RowStyles.Add(new RowStyle(SizeType.Absolute,56));root.RowStyles.Add(new RowStyle(SizeType.Absolute,44));root.RowStyles.Add(new RowStyle(SizeType.Absolute,30));root.RowStyles.Add(new RowStyle(SizeType.Absolute,40));root.RowStyles.Add(new RowStyle(SizeType.Percent,100));root.RowStyles.Add(new RowStyle(SizeType.Absolute,76));root.RowStyles.Add(new RowStyle(SizeType.Absolute,38));Controls.Add(root);
@@ -50,7 +50,7 @@ sealed class BrowserForm : Form {
         AddColumn("Room",260);AddColumn("Country",175);AddColumn("Zone",180);AddColumn("Difficulty",105);AddColumn("Players",75);AddColumn("Party classes",175);AddColumn("Password",90);AddColumn("Code",90);AddColumn("Your hero",120);
         grid.CellPainting+=PaintClasses;
         root.Controls.Add(grid,0,4);details.BackColor=Color.FromArgb(25,20,15);details.Dock=DockStyle.Fill;details.Padding=new Padding(0,10,0,0);root.Controls.Add(details,0,5);
-        status.Dock=DockStyle.Fill;status.Text="Direct service reads rooms without the game or its Co-op window open.";status.ForeColor=Color.FromArgb(176,160,121);root.Controls.Add(status,0,6);
+        status.Dock=DockStyle.Fill;ShowRoomStatus();status.ForeColor=Color.FromArgb(176,160,121);root.Controls.Add(status,0,6);
         source.SelectedIndexChanged+=delegate{ChangeSource();};search.TextChanged+=delegate{Render();};canJoin.CheckedChanged+=delegate{Render();};noPassword.CheckedChanged+=delegate{Render();};refresh.Click+=async delegate{await RefreshRooms();};
         interval.SelectedIndexChanged+=delegate{timer.Stop();if(interval.SelectedIndex>0){timer.Interval=new[]{0,1000,3000,5000,10000}[interval.SelectedIndex];if(connectOnShow&&Visible)timer.Start();}};
         timer.Tick+=async delegate{await RefreshRooms();};grid.SelectionChanged+=delegate{ShowDetails();};grid.CellDoubleClick+=async delegate(object s,DataGridViewCellEventArgs e){if(e.RowIndex>=0&&e.RowIndex<grid.Rows.Count)await JoinRoom(grid.Rows[e.RowIndex].Tag as Lobby);};copy.Click+=delegate{CopyCode();};join.Click+=async delegate{await JoinRoom(Selected());};
@@ -111,10 +111,10 @@ sealed class BrowserForm : Form {
         if(directReader!=null){directReader.Dispose();directReader=null;}
         if(reader!=null){try{reader.Dispose();reader=null;}catch(Exception e){status.Text=e.Message;return;}}
         canJoin.Checked=false;canJoin.Enabled=true;heroState=null;heroLabel.Text=source.SelectedIndex==0?"Selected hero will be checked when rooms refresh.":"Game view supplies hero eligibility.";rooms.Clear();Render();stale=true;copy.Enabled=join.Enabled=false;
-        status.Text=source.SelectedIndex==0?"Direct service: the game can stay on its main screen to check the selected hero.":"Game view: leave Co-op > Lobbies open to read hero eligibility.";
+        lastReadAt=DateTime.MinValue;lastSource=source.SelectedIndex==0?"Direct service":"Game view";lastHeroChecked=false;ShowRoomStatus();
     }
     internal async Task RefreshRooms(){
-        if(busy||joining||IsDisposed||closeRequested)return;busy=true;refresh.Enabled=false;source.Enabled=false;status.Text=source.SelectedIndex==0?"Requesting rooms from the lobby service...":"Reading the game's live room list...";
+        if(busy||joining||IsDisposed||closeRequested)return;busy=true;source.Enabled=false;
         bool direct=source.SelectedIndex==0;
         try{
             List<Lobby> next;
@@ -122,23 +122,24 @@ sealed class BrowserForm : Form {
             else{if(reader==null)reader=await Task.Run(()=>LobbyReader.Connect());next=await Task.Run(()=>reader.ReadRooms());}
             if(IsDisposed)return;
             if(direct){
-                heroState=null;status.Text="Checking the selected hero and unlocks...";
+                heroState=null;
                 try{heroState=await Task.Run(()=>heroReader.ReadSelected());heroState.Apply(next);heroLabel.Text="Selected: "+heroState.Name+" / "+ClassIcons.Names[heroState.ClassId]+"  |  Normal zones: "+heroState.ZonesOpen+" / 12  |  Checked "+DateTime.Now.ToString("HH:mm:ss");}
                 catch(Exception heroError){heroReader.Dispose();foreach(var room in next){room.EligibilityKnown=false;room.Opened=false;}heroLabel.Text="Hero unchecked: "+heroError.Message+" Can Join hides unchecked rooms.";}
             }else{heroLabel.Text="Game view supplies eligibility for the selected hero.";}
             if(IsDisposed)return;rooms=next;stale=false;
             filtering=true;try{UpdateFilter(country,"All countries",rooms.Select(r=>r.CountryLabel));UpdateFilter(zone,"All zones",rooms.Select(r=>r.Zone));UpdateFilter(difficulty,"All difficulties",rooms.Select(r=>r.Difficulty));}finally{filtering=false;}
-            Render();status.Text=grid.Rows.Count+" of "+rooms.Count+" rooms returned | Read at "+DateTime.Now.ToString("HH:mm:ss")+(direct?(heroState!=null?" | Direct service; hero checked":" | Direct service; hero unchecked"):" | Keep the game's lobby list open");
-        }catch(Exception e){if(!IsDisposed){stale=true;status.Text=e.Message+" Previous list is not refreshed.";copy.Enabled=join.Enabled=false;}if(directReader!=null){directReader.Dispose();directReader=null;}if(reader!=null){try{reader.Dispose();}catch(Exception cleanup){status.Text+=" Detach: "+cleanup.Message;}reader=null;}}
+            lastReadAt=DateTime.Now;lastSource=direct?"Direct service":"Game view";lastHeroChecked=!direct||heroState!=null;Render();ShowRoomStatus();
+        }catch(Exception e){if(!IsDisposed){stale=true;ShowRoomStatus();status.Text+=" | "+e.Message;copy.Enabled=join.Enabled=false;}if(directReader!=null){directReader.Dispose();directReader=null;}if(reader!=null){try{reader.Dispose();}catch(Exception cleanup){status.Text+=" Detach: "+cleanup.Message;}reader=null;}}
         finally{busy=false;if(!IsDisposed){refresh.Enabled=true;source.Enabled=true;if(closeRequested)Close();}}
     }
     static void UpdateFilter(ComboBox box,string all,IEnumerable<string> values){string selected=box.SelectedItem as string??all;var entries=new[]{all}.Concat(values.Distinct().OrderBy(s=>s)).ToArray();if(!entries.Contains(selected))entries=entries.Concat(new[]{selected}).ToArray();box.Items.Clear();box.Items.AddRange(entries);box.SelectedItem=selected;}
+    void ShowRoomStatus(){status.Text=grid.Rows.Count+" of "+rooms.Count+" rooms returned | Read at "+(lastReadAt==DateTime.MinValue?"--:--:--":lastReadAt.ToString("HH:mm:ss"))+" | "+lastSource+"; hero "+(lastHeroChecked?"checked":"unchecked");}
     void Render(){
         if(grid.Columns.Count==0)return;var selected=Selected();string code=selected==null?null:selected.Code;
         int first=grid.FirstDisplayedScrollingRowIndex;string top=first>=0&&first<grid.Rows.Count?((Lobby)grid.Rows[first].Tag).Code:null;
         var sort=grid.SortedColumn;var direction=grid.SortOrder;grid.SuspendLayout();
         try{
-            grid.Rows.Clear();string q=search.Text.Trim();
+            var visible=new List<Lobby>();string q=search.Text.Trim();
             foreach(var r in rooms.OrderBy(x=>x.Name,StringComparer.CurrentCultureIgnoreCase).ThenBy(x=>x.Code)){
                 if(country.SelectedIndex>0&&r.CountryLabel!=(string)country.SelectedItem)continue;
                 if(zone.SelectedIndex>0&&r.Zone!=(string)zone.SelectedItem)continue;
@@ -146,12 +147,21 @@ sealed class BrowserForm : Form {
                 if(canJoin.Checked&&(!r.EligibilityKnown||!r.Opened))continue;
                 if(noPassword.Checked&&r.Password)continue;
                 if(q.Length>0&&(r.Name+" "+r.Description+" "+r.Host+" "+r.Code).IndexOf(q,StringComparison.CurrentCultureIgnoreCase)<0)continue;
-                int i=grid.Rows.Add(r.Name,r.CountryLabel,r.Zone,r.Difficulty,r.Players+" / "+r.Maximum,r.ClassSummary,r.Password?"Required":"None",r.Code,r.EligibilityKnown?(r.Opened?"Can enter":"Locked"):"Not checked");grid.Rows[i].Tag=r;grid.Rows[i].Cells["Party classes"].ToolTipText=r.ClassSummary;
+                visible.Add(r);
+            }
+            while(grid.Rows.Count>visible.Count)grid.Rows.RemoveAt(grid.Rows.Count-1);
+            if(grid.Rows.Count<visible.Count)grid.Rows.Add(visible.Count-grid.Rows.Count);
+            for(int i=0;i<visible.Count;i++){
+                var r=visible[i];var row=grid.Rows[i];var previous=row.Tag as Lobby;
+                object[] values={r.Name,r.CountryLabel,r.Zone,r.Difficulty,r.Players+" / "+r.Maximum,r.ClassSummary,r.Password?"Required":"None",r.Code,r.EligibilityKnown?(r.Opened?"Can enter":"Locked"):"Not checked"};
+                for(int j=0;j<values.Length;j++)if(!object.Equals(row.Cells[j].Value,values[j]))row.Cells[j].Value=values[j];
+                row.Tag=r;row.Cells["Party classes"].ToolTipText=r.ClassSummary;
+                if(previous==null||!previous.ClassIds.SequenceEqual(r.ClassIds)||previous.Players!=r.Players)grid.InvalidateCell(row.Cells["Party classes"]);
             }
             if(sort!=null)grid.Sort(sort,direction==SortOrder.Descending?System.ComponentModel.ListSortDirection.Descending:System.ComponentModel.ListSortDirection.Ascending);
             grid.ClearSelection();foreach(DataGridViewRow row in grid.Rows){var r=(Lobby)row.Tag;if(r.Code==code)row.Selected=true;if(r.Code==top)grid.FirstDisplayedScrollingRowIndex=row.Index;}
-        }finally{grid.ResumeLayout();}ShowDetails();
-        if(!busy)status.Text=grid.Rows.Count+" of "+rooms.Count+" rooms shown";
+        }finally{grid.ResumeLayout();((WarcraftGrid)grid).RefreshScrollbarTheme();}ShowDetails();
+        if(!busy)ShowRoomStatus();
     }
 }
 static class BrowserProgram {
