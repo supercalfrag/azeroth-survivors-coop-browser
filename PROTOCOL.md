@@ -11,4 +11,4 @@ Each row: four length-prefixed strings (code, name, description, host), u8 host 
 
 The decoder checks lengths, strict UTF-8, flags, classes, codes, capacity, truncation and trailing bytes. The client caps a received message at 2 MiB and times requests out after 10 seconds. Refresh is manual by default; five seconds is the shortest offered interval.
 
-Class IDs: 1 Warrior, 2 Paladin, 3 Hunter, 4 Rogue, 5 Priest, 7 Shaman, 8 Mage, 9 Warlock, 11 Druid. Unknown data should fail visibly rather than be guessed. This client requests lists only; no join/host/chat protocol is implemented.
+Class IDs: 1 Warrior, 2 Paladin, 3 Hunter, 4 Rogue, 5 Priest, 7 Shaman, 8 Mage, 9 Warlock, 11 Druid. Unknown data should fail visibly rather than be guessed. This direct-service client requests lists only; no direct-service join/host/chat protocol is implemented. Browser v8 joins by submitting the normal UI command inside the running game, rather than implementing a second multiplayer client.
