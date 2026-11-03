@@ -22,11 +22,11 @@ sealed class BrowserForm : Form {
     readonly ComboBox source=new WarcraftComboBox();readonly TextBox version=new TextBox();DirectLobbyReader directReader;
     readonly Timer timer=new Timer();List<Lobby> rooms=new List<Lobby>();LobbyReader reader;bool busy,joining,filtering,closeRequested,stale;
     internal BrowserForm(bool connectOnShow=true){
-        Text="Azeroth Co-op Browser v12";ClientSize=new Size(1410,780);MinimumSize=new Size(1020,650);StartPosition=FormStartPosition.CenterScreen;
-        Font=new Font("Segoe UI",10);BackColor=Color.FromArgb(22,18,14);ForeColor=Color.FromArgb(225,211,173);
+        Text="Azeroth Co-op Browser v13";ClientSize=new Size(1410,780);MinimumSize=new Size(1020,650);StartPosition=FormStartPosition.CenterScreen;
+        Font=WarcraftFonts.Body();BackColor=Color.FromArgb(22,18,14);ForeColor=Color.FromArgb(225,211,173);
         var root=new WarcraftPanel{Dock=DockStyle.Fill,Padding=new Padding(25),ColumnCount=1,RowCount=7};
         root.RowStyles.Add(new RowStyle(SizeType.Absolute,56));root.RowStyles.Add(new RowStyle(SizeType.Absolute,44));root.RowStyles.Add(new RowStyle(SizeType.Absolute,30));root.RowStyles.Add(new RowStyle(SizeType.Absolute,40));root.RowStyles.Add(new RowStyle(SizeType.Percent,100));root.RowStyles.Add(new RowStyle(SizeType.Absolute,76));root.RowStyles.Add(new RowStyle(SizeType.Absolute,38));Controls.Add(root);
-        root.Controls.Add(new WarcraftTitle{Text="AZEROTH  /  CO-OP BROWSER",Font=new Font("Palatino Linotype",20,FontStyle.Bold),ForeColor=Color.FromArgb(246,208,119),Dock=DockStyle.Fill},0,0);
+        root.Controls.Add(new WarcraftTitle{Text="AZEROTH  /  CO-OP BROWSER",Font=WarcraftFonts.Title(),ForeColor=Color.FromArgb(246,208,119),Dock=DockStyle.Fill},0,0);
         var filters=new FlowLayoutPanel{Dock=DockStyle.Fill,WrapContents=false};root.Controls.Add(filters,0,1);
         filters.Controls.Add(new Label{Text="Search",AutoSize=true,Padding=new Padding(0,5,6,0)});
         search.BackColor=Color.FromArgb(18,15,12);search.ForeColor=ForeColor;search.BorderStyle=BorderStyle.FixedSingle;search.Width=230;search.Margin=new Padding(0,3,14,3);filters.Controls.Add(search);
@@ -35,12 +35,12 @@ sealed class BrowserForm : Form {
         var tools=new FlowLayoutPanel{Dock=DockStyle.Fill,WrapContents=false};root.Controls.Add(tools,0,3);heroLabel.Text="Selected hero will be checked when rooms refresh.";heroLabel.Dock=DockStyle.Fill;heroLabel.ForeColor=Color.FromArgb(213,193,140);root.Controls.Add(heroLabel,0,2);
         canJoin.Text="Can Join";canJoin.AutoSize=true;
         noPassword.Text="No password";noPassword.AutoSize=true;
-        tools.Controls.Add(new Label{Text="Source:",AutoSize=true,Padding=new Padding(0,5,3,0)});WarcraftTheme.Combo(source);source.DropDownStyle=ComboBoxStyle.DropDownList;source.Width=125;source.Items.AddRange(new object[]{"Direct service","Game view"});source.SelectedIndex=0;tools.Controls.Add(source);tools.Controls.Add(new Label{Text="Game version:",AutoSize=true,Padding=new Padding(8,5,3,0)});version.Width=80;version.Text=DirectLobbyReader.DetectVersion();tools.Controls.Add(version);canJoin.Enabled=true;tools.Controls.Add(canJoin);tools.Controls.Add(noPassword);tools.Controls.Add(new Label{Text="Refresh:",AutoSize=true,Padding=new Padding(16,5,3,0)});
+        tools.Controls.Add(new Label{Text="Source:",AutoSize=true,Padding=new Padding(0,5,3,0)});WarcraftTheme.Combo(source);source.DropDownStyle=ComboBoxStyle.DropDownList;source.Width=150;source.Items.AddRange(new object[]{"Direct service","Game view"});source.SelectedIndex=0;tools.Controls.Add(source);tools.Controls.Add(new Label{Text="Game version:",AutoSize=true,Padding=new Padding(8,5,3,0)});version.Width=80;version.Text=DirectLobbyReader.DetectVersion();tools.Controls.Add(version);canJoin.Enabled=true;tools.Controls.Add(canJoin);tools.Controls.Add(noPassword);tools.Controls.Add(new Label{Text="Refresh:",AutoSize=true,Padding=new Padding(16,5,3,0)});
         WarcraftTheme.Combo(interval);interval.DropDownStyle=ComboBoxStyle.DropDownList;interval.Width=130;interval.Items.AddRange(new object[]{"Manual","Every 1 sec","Every 3 sec","Every 5 sec","Every 10 sec"});interval.SelectedIndex=3;timer.Interval=5000;tools.Controls.Add(interval);
         refresh.Text="Refresh now";refresh.AutoSize=true;tools.Controls.Add(refresh);copy.Text="Copy join code";copy.AutoSize=true;copy.Enabled=false;tools.Controls.Add(copy);join.Text="Join in game";join.AutoSize=true;join.Enabled=false;tools.Controls.Add(join);
         grid.Dock=DockStyle.Fill;grid.ReadOnly=true;grid.AllowUserToAddRows=grid.AllowUserToDeleteRows=grid.AllowUserToResizeRows=false;grid.MultiSelect=false;grid.SelectionMode=DataGridViewSelectionMode.FullRowSelect;
         grid.RowHeadersVisible=false;grid.BackgroundColor=Color.FromArgb(24,21,17);grid.BorderStyle=BorderStyle.None;grid.EnableHeadersVisualStyles=false;grid.GridColor=Color.FromArgb(61,48,32);
-        grid.ColumnHeadersDefaultCellStyle=new DataGridViewCellStyle{BackColor=Color.FromArgb(51,41,29),ForeColor=Color.FromArgb(235,199,115),Font=new Font("Segoe UI",10,FontStyle.Bold)};
+        grid.ColumnHeadersDefaultCellStyle=new DataGridViewCellStyle{BackColor=Color.FromArgb(51,41,29),ForeColor=Color.FromArgb(235,199,115),Font=WarcraftFonts.Body(10,FontStyle.Bold)};
         grid.DefaultCellStyle=new DataGridViewCellStyle{BackColor=Color.FromArgb(24,21,17),ForeColor=Color.FromArgb(226,215,185),SelectionBackColor=Color.FromArgb(91,76,38),SelectionForeColor=Color.White,Padding=new Padding(5)};
         grid.AlternatingRowsDefaultCellStyle.BackColor=Color.FromArgb(31,27,21);grid.RowTemplate.Height=34;grid.ColumnHeadersHeight=36;
         AddColumn("Room",260);AddColumn("Country",175);AddColumn("Zone",180);AddColumn("Difficulty",105);AddColumn("Players",75);AddColumn("Party classes",175);AddColumn("Password",90);AddColumn("Code",90);AddColumn("Your hero",120);

@@ -8,7 +8,7 @@ static class ClassIcons {
     static readonly Dictionary<byte,Point> Cells=new Dictionary<byte,Point>{{1,new Point(0,0)},{8,new Point(1,0)},{4,new Point(2,0)},{11,new Point(3,0)},{3,new Point(0,1)},{7,new Point(1,1)},{5,new Point(2,1)},{9,new Point(3,1)},{2,new Point(0,2)}};
     static readonly Bitmap Atlas=Load();
     static Bitmap Load(){using(var stream=Assembly.GetExecutingAssembly().GetManifestResourceStream("ClassAtlas.png")){if(stream==null)return CreateBadges();using(var image=Image.FromStream(stream))return new Bitmap(image);}}
-    // Original, generated badges: no extracted game textures are distributed.
+    // Generated fallback badges if no class atlas is embedded.
     static Bitmap CreateBadges(){
         var atlas=new Bitmap(256,256);
         Color[] colors={Color.FromArgb(199,156,110),Color.FromArgb(105,204,240),Color.FromArgb(255,245,105),Color.FromArgb(255,125,10),Color.FromArgb(171,212,115),Color.FromArgb(70,115,230),Color.White,Color.FromArgb(148,130,201),Color.FromArgb(245,140,186)};

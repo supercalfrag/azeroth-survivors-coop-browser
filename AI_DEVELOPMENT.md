@@ -13,7 +13,7 @@ The repository is intended to be understandable to both human contributors and A
 - `src/LobbyCompatibility.cs`: strict renderer signature and layout verification.
 - `src/LobbyCapture.cs`: reversible Game view capture installation/restoration.
 - `src/LobbyCaptureBytes.cs`: capture stub bytes, separate from the game's code.
-- `src/WarcraftTheme.cs`, `src/ClassIcons.cs`: procedural UI and generated badges.
+- `src/WarcraftTheme.cs`, `src/ClassIcons.cs`: procedural UI, class atlas and fallback badges.
 - `src/WarcraftScrollbars.cs`: native scrollbar repainting for the grid and dropdown lists; native input and accessibility behavior is retained.
 - `src/JoinGame.cs`: exact-build, full live-function verification for native joining.
 - `src/NativeJoinBridge.cs`, `src/JoinBridgeBytes.cs`: one-shot game-thread command submission and reversible detour.
@@ -23,11 +23,13 @@ The repository is intended to be understandable to both human contributors and A
 - `tools/JoinBridge.asm`: readable source for the generated x64 stub.
 - `tests/SmokeTests.cs`, `tests/NativeJoinTests.cs`: offline protocol, eligibility, UI and native own-process fixtures.
 
+- `src/WarcraftFonts.cs`: private embedded/file font loading with system-serif fallbacks; no system font installation.
+
 ## Evidence rules
 
 Never call a build or fixture test a live gameplay test. Document which game executable was inspected. Re-check layouts before extending native support. Keep old-version protection when a newer layout is unknown. Service browsing, hero eligibility, Game view and native joining are independent capabilities.
 
-Do not infer permission to join, host, message players, change saves, or add cheats from this repository's maintenance instructions. Test public-list reading only when needed; keep offline tests offline. Do not commit captured lobbies, hero names, saves, local paths, credentials, or game assets.
+Do not infer permission to join, host, message players, change saves, or add cheats from this repository's maintenance instructions. Test public-list reading only when needed; keep offline tests offline. Do not commit captured lobbies, hero names, saves, local paths, credentials, or additional game assets. The approved class atlas is included with separate third-party attribution.
 
 ## Updating compatibility
 

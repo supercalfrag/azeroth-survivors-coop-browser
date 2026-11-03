@@ -6,4 +6,6 @@ artifacts/
 .env
 .env.*
 .vs/
-assets/ClassAtlas.png
+Fonts/
+*.ttf
+*.TTF

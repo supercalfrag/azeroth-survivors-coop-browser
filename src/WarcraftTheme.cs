@@ -39,7 +39,7 @@ sealed class WarcraftTitle:Label {
 }
 sealed class WarcraftButton:Button {
     bool hover,pressed;
-    internal WarcraftButton(){SetStyle(ControlStyles.UserPaint|ControlStyles.AllPaintingInWmPaint|ControlStyles.OptimizedDoubleBuffer,true);FlatStyle=FlatStyle.Flat;FlatAppearance.BorderSize=0;Padding=new Padding(10,3,10,3);Margin=new Padding(5,0,3,0);Font=new Font("Segoe UI",9,FontStyle.Bold);}
+    internal WarcraftButton(){SetStyle(ControlStyles.UserPaint|ControlStyles.AllPaintingInWmPaint|ControlStyles.OptimizedDoubleBuffer,true);FlatStyle=FlatStyle.Flat;FlatAppearance.BorderSize=0;Padding=new Padding(10,3,10,3);Margin=new Padding(5,0,3,0);Font=WarcraftFonts.Body(9,FontStyle.Bold);}
     protected override void OnMouseEnter(EventArgs e){hover=true;Invalidate();base.OnMouseEnter(e);}
     protected override void OnMouseLeave(EventArgs e){hover=pressed=false;Invalidate();base.OnMouseLeave(e);}
     protected override void OnMouseDown(MouseEventArgs e){pressed=true;Invalidate();base.OnMouseDown(e);}

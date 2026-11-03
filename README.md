@@ -11,8 +11,9 @@ An unofficial Windows companion browser for Azeroth Survivors, with a dark-and-g
 - Browse public lobbies directly, without opening Co-op in the game.
 - Filter by country, zone, difficulty, text, and password.
 - Optional **Can Join** filter based on the hero selected in the running game.
-- Class badges and roster details.
+- Original Warcraft class icons and roster details.
 - Dark-and-gold table and dropdown scrollbars matching the panel theme.
+- Friz Quadrata UI and Morpheus heading fonts in the packaged release; serif fallback when optional fonts are unavailable.
 - Refresh every **5 seconds by default**, with Manual, 1-second, 3-second, and 10-second options.
 - Double-click a room, or use **Join in game**, to join through the running game.
 - Keep **Copy join code** as a manual fallback.
@@ -38,7 +39,7 @@ The one-second option polls for a list; it is not a guarantee of one-second fres
 
 ## Compatibility and limitations
 
-This release is companion browser v12. Native double-click joining is verified only for **0.139.2**, SHA-256 `0BB6C557C5F6CFEEA212761A33554F9A5647CE7CB7E03B8A163B95489496E908`. Other builds reject native joining while lobby browsing remains available. The selected-hero reader has no executable version/hash gate. It locates resource owners using allocation metadata, executable-section pointers, valid hero identity/zone text, bounded progression vectors, repeated stable snapshots, and one unique hero/profile pair. Cached owners are revalidated; invalid owners trigger a fresh scan. Missing, changed, unsupported or ambiguous data leaves eligibility unchecked rather than guessed. Automatic detection was live-verified on 0.139.2 with Warlock and four normal zones. The earlier version-gated reader was verified on 0.139.0. Direct browsing can continue with the correct version field, provided the service protocol remains compatible. No claim of current or universal game-version support is made.
+This release is companion browser v13. Native double-click joining is verified only for **0.139.2**, SHA-256 `0BB6C557C5F6CFEEA212761A33554F9A5647CE7CB7E03B8A163B95489496E908`. Other builds reject native joining while lobby browsing remains available. The selected-hero reader has no executable version/hash gate. It locates resource owners using allocation metadata, executable-section pointers, valid hero identity/zone text, bounded progression vectors, repeated stable snapshots, and one unique hero/profile pair. Cached owners are revalidated; invalid owners trigger a fresh scan. Missing, changed, unsupported or ambiguous data leaves eligibility unchecked rather than guessed. Automatic detection was live-verified on 0.139.2 with Warlock and four normal zones. The earlier version-gated reader was verified on 0.139.0. Direct browsing can continue with the correct version field, provided the service protocol remains compatible. No claim of current or universal game-version support is made.
 
 Normal-zone eligibility uses the selected class's unlocked zone count. Heroic eligibility requires that class's Normal clear plus the account's completed Heroic tiers, capped at V. Unsupported zones or data are marked unchecked.
 
@@ -63,14 +64,22 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\build.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File .\test.ps1
 ```
 
-The output is `dist\AzerothCoopBrowser.exe`. No NuGet dependencies or game files are required. Public builds generate original class-letter badges instead of redistributing extracted game textures. To use a compatible class-icon atlas you have locally, build with `./build.ps1 -ClassAtlas "C:\path\to\ClassAtlas.png"`. This embeds the PNG in your executable. The atlas is not needed for the default build, and is not committed to this repository.
+The output is `dist\AzerothCoopBrowser.exe`. No NuGet dependencies or game files are required. The class atlas in `assets/ClassAtlas.png` is embedded by default. `-ClassAtlas` can select a different compatible local PNG.
+
+To build with locally supplied WoW fonts:
+
+```powershell
+./build.ps1 -FontDirectory "C:\path\to\fonts"
+```
+
+The folder should contain `FRIZQT__.TTF` and `MORPHEUS.TTF`. Release executables embed these fonts privately, without installing system fonts. The font files are not committed to this repository. Source builds without them use system-serif fallbacks, or can load them from a `Fonts` folder beside the executable.
 
 ## Validation
 
-The original v7 was live-tested for direct listings with Co-op closed, hero selection changes, eligibility filtering, and refresh settings. That historical testing applies to the inspected build, not every newer update. Public-package checks cover compilation, protocol decoding with synthetic data, malformed responses, eligibility boundaries, and offline UI rendering. They do not join public rooms or prove compatibility with a newer game. Additional v8 checks execute the native bridge in an isolated own-process fixture, covering dry runs, exactly-once submission, code/password transfer, allocation failure, and cleanup. A live game dry run constructed and discarded the Join command without sending it, then restored the full native poll function exactly. A player confirmed that double-click joining works, the party panel opens immediately, and the selected-hero line is correct in v9. The original class atlas was also restored and confirmed in the local build; public downloads use generated class badges.
+The original v7 was live-tested for direct listings with Co-op closed, hero selection changes, eligibility filtering, and refresh settings. That historical testing applies to the inspected build, not every newer update. Public-package checks cover compilation, protocol decoding with synthetic data, malformed responses, eligibility boundaries, and offline UI rendering. They do not join public rooms or prove compatibility with a newer game. Additional v8 checks execute the native bridge in an isolated own-process fixture, covering dry runs, exactly-once submission, code/password transfer, allocation failure, and cleanup. A live game dry run constructed and discarded the Join command without sending it, then restored the full native poll function exactly. A player confirmed that double-click joining works, the party panel opens immediately, and the selected-hero line is correct in v9. The original class atlas was restored and confirmed in the local build; v13 includes it in public downloads too. Friz Quadrata and Morpheus family names were checked after loading, and the font layout was visually inspected.
 
 See [AI development notes](AI_DEVELOPMENT.md), [protocol notes](PROTOCOL.md), and [contributing](CONTRIBUTING.md).
 
 ## License and credits
 
-Project-authored code is available under the [MIT License](LICENSE). Azeroth Survivors and Warcraft names and other third-party properties belong to their respective owners. This repository includes no game executables, archives, extracted textures, or saves. The theme is drawn in code and class badges are generated locally.
+Project-authored code is available under the [MIT License](LICENSE). Azeroth Survivors and Warcraft names and other third-party properties belong to their respective owners. This repository includes a class-icon atlas as third-party artwork; it does not include game executables, archives, or saves. The panel theme is drawn in code. See [third-party credits](THIRD_PARTY_NOTICES.md) for artwork/font attribution; the MIT license covers project-authored code, not third-party assets.
