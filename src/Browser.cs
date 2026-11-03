@@ -17,12 +17,12 @@ sealed class Lobby {
 sealed class BrowserForm : Form {
     readonly DataGridView grid=new DataGridView();readonly TextBox search=new TextBox();
     readonly ComboBox country=new ComboBox(),zone=new ComboBox(),difficulty=new ComboBox(),interval=new ComboBox();
-    readonly CheckBox canJoin=new CheckBox(),noPassword=new CheckBox(),openSlots=new CheckBox();
+    readonly CheckBox canJoin=new CheckBox(),noPassword=new CheckBox();
     readonly Label status=new Label(),details=new Label(),heroLabel=new Label();readonly HeroUnlockReader heroReader=new HeroUnlockReader();HeroUnlockState heroState;readonly Button refresh=new WarcraftButton(),copy=new WarcraftButton(),join=new WarcraftButton();
     readonly ComboBox source=new ComboBox();readonly TextBox version=new TextBox();DirectLobbyReader directReader;
     readonly Timer timer=new Timer();List<Lobby> rooms=new List<Lobby>();LobbyReader reader;bool busy,joining,filtering,closeRequested,stale;
     internal BrowserForm(bool connectOnShow=true){
-        Text="Azeroth Co-op Browser v10";ClientSize=new Size(1410,780);MinimumSize=new Size(1020,650);StartPosition=FormStartPosition.CenterScreen;
+        Text="Azeroth Co-op Browser v11";ClientSize=new Size(1410,780);MinimumSize=new Size(1020,650);StartPosition=FormStartPosition.CenterScreen;
         Font=new Font("Segoe UI",10);BackColor=Color.FromArgb(22,18,14);ForeColor=Color.FromArgb(225,211,173);
         var root=new WarcraftPanel{Dock=DockStyle.Fill,Padding=new Padding(25),ColumnCount=1,RowCount=7};
         root.RowStyles.Add(new RowStyle(SizeType.Absolute,56));root.RowStyles.Add(new RowStyle(SizeType.Absolute,44));root.RowStyles.Add(new RowStyle(SizeType.Absolute,30));root.RowStyles.Add(new RowStyle(SizeType.Absolute,40));root.RowStyles.Add(new RowStyle(SizeType.Percent,100));root.RowStyles.Add(new RowStyle(SizeType.Absolute,76));root.RowStyles.Add(new RowStyle(SizeType.Absolute,38));Controls.Add(root);
@@ -34,8 +34,8 @@ sealed class BrowserForm : Form {
         country.Items.Add("All countries");zone.Items.Add("All zones");difficulty.Items.Add("All difficulties");country.SelectedIndex=zone.SelectedIndex=difficulty.SelectedIndex=0;
         var tools=new FlowLayoutPanel{Dock=DockStyle.Fill,WrapContents=false};root.Controls.Add(tools,0,3);heroLabel.Text="Selected hero will be checked when rooms refresh.";heroLabel.Dock=DockStyle.Fill;heroLabel.ForeColor=Color.FromArgb(213,193,140);root.Controls.Add(heroLabel,0,2);
         canJoin.Text="Can Join";canJoin.AutoSize=true;
-        noPassword.Text="No password";noPassword.AutoSize=true;openSlots.Text="Open slots only";openSlots.AutoSize=true;
-        tools.Controls.Add(new Label{Text="Source:",AutoSize=true,Padding=new Padding(0,5,3,0)});WarcraftTheme.Combo(source);source.DropDownStyle=ComboBoxStyle.DropDownList;source.Width=125;source.Items.AddRange(new object[]{"Direct service","Game view"});source.SelectedIndex=0;tools.Controls.Add(source);tools.Controls.Add(new Label{Text="Game version:",AutoSize=true,Padding=new Padding(8,5,3,0)});version.Width=80;version.Text=DirectLobbyReader.DetectVersion();tools.Controls.Add(version);canJoin.Enabled=true;tools.Controls.Add(canJoin);tools.Controls.Add(noPassword);tools.Controls.Add(openSlots);tools.Controls.Add(new Label{Text="Refresh:",AutoSize=true,Padding=new Padding(16,5,3,0)});
+        noPassword.Text="No password";noPassword.AutoSize=true;
+        tools.Controls.Add(new Label{Text="Source:",AutoSize=true,Padding=new Padding(0,5,3,0)});WarcraftTheme.Combo(source);source.DropDownStyle=ComboBoxStyle.DropDownList;source.Width=125;source.Items.AddRange(new object[]{"Direct service","Game view"});source.SelectedIndex=0;tools.Controls.Add(source);tools.Controls.Add(new Label{Text="Game version:",AutoSize=true,Padding=new Padding(8,5,3,0)});version.Width=80;version.Text=DirectLobbyReader.DetectVersion();tools.Controls.Add(version);canJoin.Enabled=true;tools.Controls.Add(canJoin);tools.Controls.Add(noPassword);tools.Controls.Add(new Label{Text="Refresh:",AutoSize=true,Padding=new Padding(16,5,3,0)});
         WarcraftTheme.Combo(interval);interval.DropDownStyle=ComboBoxStyle.DropDownList;interval.Width=130;interval.Items.AddRange(new object[]{"Manual","Every 3 sec","Every 5 sec","Every 10 sec"});interval.SelectedIndex=2;timer.Interval=5000;tools.Controls.Add(interval);
         refresh.Text="Refresh now";refresh.AutoSize=true;tools.Controls.Add(refresh);copy.Text="Copy join code";copy.AutoSize=true;copy.Enabled=false;tools.Controls.Add(copy);join.Text="Join in game";join.AutoSize=true;join.Enabled=false;tools.Controls.Add(join);
         grid.Dock=DockStyle.Fill;grid.ReadOnly=true;grid.AllowUserToAddRows=grid.AllowUserToDeleteRows=grid.AllowUserToResizeRows=false;grid.MultiSelect=false;grid.SelectionMode=DataGridViewSelectionMode.FullRowSelect;
@@ -47,7 +47,7 @@ sealed class BrowserForm : Form {
         grid.CellPainting+=PaintClasses;
         root.Controls.Add(grid,0,4);details.BackColor=Color.FromArgb(25,20,15);details.Dock=DockStyle.Fill;details.Padding=new Padding(0,10,0,0);root.Controls.Add(details,0,5);
         status.Dock=DockStyle.Fill;status.Text="Direct service reads rooms without the game or its Co-op window open.";status.ForeColor=Color.FromArgb(176,160,121);root.Controls.Add(status,0,6);
-        source.SelectedIndexChanged+=delegate{ChangeSource();};version.TextChanged+=delegate{if(directReader!=null){directReader.Dispose();directReader=null;}stale=true;copy.Enabled=join.Enabled=false;};search.TextChanged+=delegate{Render();};canJoin.CheckedChanged+=delegate{Render();};noPassword.CheckedChanged+=delegate{Render();};openSlots.CheckedChanged+=delegate{Render();};refresh.Click+=async delegate{await RefreshRooms();};
+        source.SelectedIndexChanged+=delegate{ChangeSource();};version.TextChanged+=delegate{if(directReader!=null){directReader.Dispose();directReader=null;}stale=true;copy.Enabled=join.Enabled=false;};search.TextChanged+=delegate{Render();};canJoin.CheckedChanged+=delegate{Render();};noPassword.CheckedChanged+=delegate{Render();};refresh.Click+=async delegate{await RefreshRooms();};
         interval.SelectedIndexChanged+=delegate{timer.Stop();if(interval.SelectedIndex>0){timer.Interval=new[]{0,3000,5000,10000}[interval.SelectedIndex];if(connectOnShow&&Visible)timer.Start();}};
         timer.Tick+=async delegate{await RefreshRooms();};grid.SelectionChanged+=delegate{ShowDetails();};grid.CellDoubleClick+=async delegate(object s,DataGridViewCellEventArgs e){if(e.RowIndex>=0&&e.RowIndex<grid.Rows.Count)await JoinRoom(grid.Rows[e.RowIndex].Tag as Lobby);};copy.Click+=delegate{CopyCode();};join.Click+=async delegate{await JoinRoom(Selected());};
         FormClosing+=delegate(object sender,FormClosingEventArgs e){if(busy||joining){closeRequested=true;timer.Stop();e.Cancel=true;status.Text="Finishing the current capture and disconnecting...";}};
@@ -128,7 +128,7 @@ sealed class BrowserForm : Form {
                 if(zone.SelectedIndex>0&&r.Zone!=(string)zone.SelectedItem)continue;
                 if(difficulty.SelectedIndex>0&&r.Difficulty!=(string)difficulty.SelectedItem)continue;
                 if(canJoin.Checked&&(!r.EligibilityKnown||!r.Opened))continue;
-                if(noPassword.Checked&&r.Password||openSlots.Checked&&r.Players>=r.Maximum)continue;
+                if(noPassword.Checked&&r.Password)continue;
                 if(q.Length>0&&(r.Name+" "+r.Description+" "+r.Host+" "+r.Code).IndexOf(q,StringComparison.CurrentCultureIgnoreCase)<0)continue;
                 int i=grid.Rows.Add(r.Name,r.CountryLabel,r.Zone,r.Difficulty,r.Players+" / "+r.Maximum,r.ClassSummary,r.Password?"Required":"None",r.Code,r.EligibilityKnown?(r.Opened?"Can enter":"Locked"):"Not checked");grid.Rows[i].Tag=r;grid.Rows[i].Cells["Party classes"].ToolTipText=r.ClassSummary;
             }

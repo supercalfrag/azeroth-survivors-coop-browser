@@ -9,7 +9,7 @@ An unofficial Windows companion browser for Azeroth Survivors, with a dark-and-g
 ## Features
 
 - Browse public lobbies directly, without opening Co-op in the game.
-- Filter by country, zone, difficulty, text, password, and available slots.
+- Filter by country, zone, difficulty, text, and password.
 - Optional **Can Join** filter based on the hero selected in the running game.
 - Class badges and roster details.
 - Refresh every **5 seconds by default**, with Manual, 3-second, and 10-second options.
@@ -35,7 +35,7 @@ Direct browsing works with the game closed. Hero eligibility requires the game r
 
 ## Compatibility and limitations
 
-This release is companion browser v10. Native double-click joining is verified only for **0.139.2**, SHA-256 `0BB6C557C5F6CFEEA212761A33554F9A5647CE7CB7E03B8A163B95489496E908`. Other builds reject native joining while lobby browsing remains available. The selected-hero reader has no executable version/hash gate. It locates resource owners using allocation metadata, executable-section pointers, valid hero identity/zone text, bounded progression vectors, repeated stable snapshots, and one unique hero/profile pair. Cached owners are revalidated; invalid owners trigger a fresh scan. Missing, changed, unsupported or ambiguous data leaves eligibility unchecked rather than guessed. Automatic detection was live-verified on 0.139.2 with Warlock and four normal zones. The earlier version-gated reader was verified on 0.139.0. Direct browsing can continue with the correct version field, provided the service protocol remains compatible. No claim of current or universal game-version support is made.
+This release is companion browser v11. Native double-click joining is verified only for **0.139.2**, SHA-256 `0BB6C557C5F6CFEEA212761A33554F9A5647CE7CB7E03B8A163B95489496E908`. Other builds reject native joining while lobby browsing remains available. The selected-hero reader has no executable version/hash gate. It locates resource owners using allocation metadata, executable-section pointers, valid hero identity/zone text, bounded progression vectors, repeated stable snapshots, and one unique hero/profile pair. Cached owners are revalidated; invalid owners trigger a fresh scan. Missing, changed, unsupported or ambiguous data leaves eligibility unchecked rather than guessed. Automatic detection was live-verified on 0.139.2 with Warlock and four normal zones. The earlier version-gated reader was verified on 0.139.0. Direct browsing can continue with the correct version field, provided the service protocol remains compatible. No claim of current or universal game-version support is made.
 
 Normal-zone eligibility uses the selected class's unlocked zone count. Heroic eligibility requires that class's Normal clear plus the account's completed Heroic tiers, capped at V. Unsupported zones or data are marked unchecked.
 
