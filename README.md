@@ -12,7 +12,8 @@ An unofficial Windows companion browser for Azeroth Survivors, with a dark-and-g
 - Filter by country, zone, difficulty, text, and password.
 - Optional **Can Join** filter based on the hero selected in the running game.
 - Class badges and roster details.
-- Refresh every **5 seconds by default**, with Manual, 3-second, and 10-second options.
+- Dark-and-gold table and dropdown scrollbars matching the panel theme.
+- Refresh every **5 seconds by default**, with Manual, 1-second, 3-second, and 10-second options.
 - Double-click a room, or use **Join in game**, to join through the running game.
 - Keep **Copy join code** as a manual fallback.
 - Optional **Game view** source for the game's own lobby data.
@@ -33,9 +34,11 @@ Use the game’s main menu for joining. The browser reports **Join request sent**,
 
 Direct browsing works with the game closed. Hero eligibility requires the game running. **Can Join** hides rooms whose eligibility is unknown; uncheck it to see the returned list when hero reading is unavailable.
 
+The one-second option polls for a list; it is not a guarantee of one-second freshness or server-pushed updates. Requests do not overlap.
+
 ## Compatibility and limitations
 
-This release is companion browser v11. Native double-click joining is verified only for **0.139.2**, SHA-256 `0BB6C557C5F6CFEEA212761A33554F9A5647CE7CB7E03B8A163B95489496E908`. Other builds reject native joining while lobby browsing remains available. The selected-hero reader has no executable version/hash gate. It locates resource owners using allocation metadata, executable-section pointers, valid hero identity/zone text, bounded progression vectors, repeated stable snapshots, and one unique hero/profile pair. Cached owners are revalidated; invalid owners trigger a fresh scan. Missing, changed, unsupported or ambiguous data leaves eligibility unchecked rather than guessed. Automatic detection was live-verified on 0.139.2 with Warlock and four normal zones. The earlier version-gated reader was verified on 0.139.0. Direct browsing can continue with the correct version field, provided the service protocol remains compatible. No claim of current or universal game-version support is made.
+This release is companion browser v12. Native double-click joining is verified only for **0.139.2**, SHA-256 `0BB6C557C5F6CFEEA212761A33554F9A5647CE7CB7E03B8A163B95489496E908`. Other builds reject native joining while lobby browsing remains available. The selected-hero reader has no executable version/hash gate. It locates resource owners using allocation metadata, executable-section pointers, valid hero identity/zone text, bounded progression vectors, repeated stable snapshots, and one unique hero/profile pair. Cached owners are revalidated; invalid owners trigger a fresh scan. Missing, changed, unsupported or ambiguous data leaves eligibility unchecked rather than guessed. Automatic detection was live-verified on 0.139.2 with Warlock and four normal zones. The earlier version-gated reader was verified on 0.139.0. Direct browsing can continue with the correct version field, provided the service protocol remains compatible. No claim of current or universal game-version support is made.
 
 Normal-zone eligibility uses the selected class's unlocked zone count. Heroic eligibility requires that class's Normal clear plus the account's completed Heroic tiers, capped at V. Unsupported zones or data are marked unchecked.
 

@@ -14,6 +14,7 @@ The repository is intended to be understandable to both human contributors and A
 - `src/LobbyCapture.cs`: reversible Game view capture installation/restoration.
 - `src/LobbyCaptureBytes.cs`: capture stub bytes, separate from the game's code.
 - `src/WarcraftTheme.cs`, `src/ClassIcons.cs`: procedural UI and generated badges.
+- `src/WarcraftScrollbars.cs`: native scrollbar repainting for the grid and dropdown lists; native input and accessibility behavior is retained.
 - `src/JoinGame.cs`: exact-build, full live-function verification for native joining.
 - `src/NativeJoinBridge.cs`, `src/JoinBridgeBytes.cs`: one-shot game-thread command submission and reversible detour.
 - `src/JoinPasswordForm.cs`: explicit password prompt and game foreground handoff.
