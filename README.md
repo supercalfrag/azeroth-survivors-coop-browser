@@ -27,7 +27,7 @@ Download the executable from [Releases](https://github.com/supercalfrag/azeroth-
 
 1. Open `AzerothCoopBrowser.exe`.
 2. Leave **Source** set to **Direct service**.
-3. Check the game version field matches the version you play. It detects a running game, or a game executable beside the browser; otherwise enter the version manually.
+3. The game version appears as text to the left of the selected hero. It detects a running game, or a game executable beside the browser, and rechecks when the running game changes. With no game available it starts from the packaged fallback version; the last detected version is retained when you close the game.
 4. Refresh and set your filters.
 5. Double-click a room to join. For a protected room, enter its password in the browser prompt. The game is brought forward after the request is submitted.
 
@@ -39,7 +39,7 @@ The one-second option polls for a list; it is not a guarantee of one-second fres
 
 ## Compatibility and limitations
 
-This release is companion browser v13. Native double-click joining is verified only for **0.139.2**, SHA-256 `0BB6C557C5F6CFEEA212761A33554F9A5647CE7CB7E03B8A163B95489496E908`. Other builds reject native joining while lobby browsing remains available. The selected-hero reader has no executable version/hash gate. It locates resource owners using allocation metadata, executable-section pointers, valid hero identity/zone text, bounded progression vectors, repeated stable snapshots, and one unique hero/profile pair. Cached owners are revalidated; invalid owners trigger a fresh scan. Missing, changed, unsupported or ambiguous data leaves eligibility unchecked rather than guessed. Automatic detection was live-verified on 0.139.2 with Warlock and four normal zones. The earlier version-gated reader was verified on 0.139.0. Direct browsing can continue with the correct version field, provided the service protocol remains compatible. No claim of current or universal game-version support is made.
+This release is companion browser v14. Native double-click joining is verified only for **0.139.2**, SHA-256 `0BB6C557C5F6CFEEA212761A33554F9A5647CE7CB7E03B8A163B95489496E908`. Other builds reject native joining while lobby browsing remains available. The selected-hero reader has no executable version/hash gate. It locates resource owners using allocation metadata, executable-section pointers, valid hero identity/zone text, bounded progression vectors, repeated stable snapshots, and one unique hero/profile pair. Cached owners are revalidated; invalid owners trigger a fresh scan. Missing, changed, unsupported or ambiguous data leaves eligibility unchecked rather than guessed. Automatic detection was live-verified on 0.139.2 with Warlock and four normal zones. The earlier version-gated reader was verified on 0.139.0. Direct browsing can continue with the detected game version, provided the service protocol remains compatible. No claim of current or universal game-version support is made.
 
 Normal-zone eligibility uses the selected class's unlocked zone count. Heroic eligibility requires that class's Normal clear plus the account's completed Heroic tiers, capped at V. Unsupported zones or data are marked unchecked.
 

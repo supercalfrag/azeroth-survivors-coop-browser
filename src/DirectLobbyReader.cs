@@ -23,7 +23,7 @@ sealed class DirectLobbyReader : IDisposable {
     string found=Encoding.ASCII.GetString(b,start,end-start);if(Regex.IsMatch(found,"^[0-9]+\\.[0-9]+\\.[0-9]+$"))return found;
    }
   }catch{}
-  return "0.139.0";
+  return "0.139.2";
  }
  internal static byte[] Hello(string version){using(var m=new MemoryStream())using(var w=new BinaryWriter(m,Encoding.UTF8)){
   w.Write((byte)1);w.Write((uint)3);byte[] text=Encoding.UTF8.GetBytes(version);w.Write((uint)text.Length);w.Write(text);w.Write((uint)0);w.Write((byte)1);return m.ToArray();

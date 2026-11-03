@@ -33,7 +33,7 @@ Do not infer permission to join, host, message players, change saves, or add che
 
 ## Updating compatibility
 
-The direct-service version field selects listings for a version; it is not a multiplayer compatibility bypass. The hero reader deliberately has no version/hash gate; it requires unique resource ownership and validated, stable data. Preserve those data checks. Native joining still requires its inspected executable hash and exact live-code verification because it writes a temporary bridge. Game view requires a unique native renderer match and validated layout. A future update can move code or fields; never relax validation solely to silence an error.
+The detected game version selects direct-service listings for that version; it is not a multiplayer compatibility bypass. The hero reader deliberately has no version/hash gate; it requires unique resource ownership and validated, stable data. Preserve those data checks. Native joining still requires its inspected executable hash and exact live-code verification because it writes a temporary bridge. Game view requires a unique native renderer match and validated layout. A future update can move code or fields; never relax validation solely to silence an error.
 
 The capture hook must restore original instructions before its memory is released, with thread-position checks. Review close/error paths as carefully as successful installation. Do not run two capture readers against one game.
 
